@@ -1,0 +1,52 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_TLS_CERTDIR: ""
+  IMAGE_NAME: 172.17.108.55:8082/gitops-app
+  IMAGE_TAG: $CI_COMMIT_SHORT_SHA
+
+build_image:
+  stage: build
+  image: docker:24-dind
+  services:
+    - docker:24-dind
+  before_script:
+    - docker info
+  script:
+    # Build image
+    - docker build -t $IMAGE_NAME:$IMAGE_TAG .
+    - docker tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:latest
+    
+    # Push to Nexus
+    - docker push $IMAGE_NAME:$IMAGE_TAG
+    - docker push $IMAGE_NAME:latest
+    
+    - echo "Image pushed to Nexus - $IMAGE_NAME:$IMAGE_TAG"
+  only:
+    - main
+
+update_manifests:
+  stage: deploy
+  image: alpine/git
+  before_script:
+    - apk add --no-cache sed
+    - git config --global user.email "ci@gitlab.com"
+    - git config --global user.name "GitLab CI"
+  script:
+    # Clone manifests repo
+    - git clone https://gitlab.com/$CI_PROJECT_NAMESPACE/gitops-manifests.git
+    - cd gitops-manifests
+    
+    # Update image tag
+    - sed -i "s|image:.*|image: 172.17.108.55:8082/gitops-app:$IMAGE_TAG|g" deployment.yaml
+    - sed -i "s|value:.*|value: \"$IMAGE_TAG\"|g" deployment.yaml
+    
+    # Commit and push
+    - git add deployment.yaml
+    - git commit -m "Update image to $IMAGE_TAG [skip ci]"
+    - git push https://oauth2:$CI_JOB_TOKEN@gitlab.com/$CI_PROJECT_NAMESPACE/gitops-manifests.git main
+  only:
+    - main
