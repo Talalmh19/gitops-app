@@ -1,3 +1,14 @@
+# --- Service Account (The "User" with the keys) ---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: gitlab-sa
+  namespace: project-10-env
+imagePullSecrets:
+- name: gitlab-registry
+---
+    
+# --- Deployment (The App) ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -15,16 +26,16 @@ spec:
       labels:
         app: gitlab-app
     spec:
-      # --- FINAL FIX: Use the secret your friend created ---
-      imagePullSecrets:
-      - name: gitlab-registry
-      # ----------------------------------------------------
+      # Tell the Pod to use the "User" we defined above
+      serviceAccountName: gitlab-sa
       containers:
       - name: gitlab-app
         image: nginx:latest
         ports:
         - containerPort: 8080
 ---
+    
+# --- Service (The Network) ---
 apiVersion: v1
 kind: Service
 metadata:
