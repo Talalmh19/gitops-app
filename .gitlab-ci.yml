@@ -30,7 +30,7 @@ update_manifests:
     git clone https://gitlab.com/talal41419/gitops-manifests.git
     cd gitops-manifests
     NEW_IMAGE="$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA"
-    sed -i "s|image:.*|image: $NEW_IMAGE|g" deployment.yaml
+    sed -i "s|image:.*|image: $NEW_IMAGE|g" manifest.yaml
     git add deployment.yaml
     git commit -m "Update image to $CI_COMMIT_SHORT_SHA [skip ci]"
     git remote set-url origin https://oauth2:${GITLAB_TOKEN}@gitlab.com/talal41419/gitops-manifests.git
