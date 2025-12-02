@@ -27,12 +27,12 @@ update_manifests:
     - apk add --no-cache git sed
     - git config --global user.email "ci@gitlab.com"
     - git config --global user.name "GitLab CI"
-  script:
-    - git clone https://gitlab.com/$CI_PROJECT_NAMESPACE/gitops-manifests.git
-    - cd gitops-manifests
-    - sed -i "s|image:.*|image: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA|g" deployment.yaml
-    - git add deployment.yaml
-    - git commit -m "Update image [skip ci]"
-    - git push https://oauth2:$CI_JOB_TOKEN@gitlab.com/$CI_PROJECT_NAMESPACE/gitops-manifests.git main
+  script: |
+    git clone https://gitlab.com/$CI_PROJECT_NAMESPACE/gitops-manifests.git
+    cd gitops-manifests
+    sed -i "s|image:.*|image: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA|g" deployment.yaml
+    git add deployment.yaml
+    git commit -m "Update image [skip ci]"
+    git push https://oauth2:$CI_JOB_TOKEN@gitlab.com/$CI_PROJECT_NAMESPACE/gitops-manifests.git main
   only:
     - main
