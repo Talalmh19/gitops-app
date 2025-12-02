@@ -18,7 +18,6 @@ build_image:
     - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA $CI_REGISTRY_IMAGE:latest
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
     - docker push $CI_REGISTRY_IMAGE:latest
-    - echo "Image pushed to $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA"
   only:
     - main
 
@@ -34,7 +33,7 @@ update_manifests:
     - sed -i "s|image:.*|image: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA|g" deployment.yaml
     - sed -i "s|value:.*|value: \"$CI_COMMIT_SHORT_SHA\"|g" deployment.yaml
     - git add deployment.yaml
-    - git commit -m "Update image to $CI_COMMIT_SHORT_SHA [skip ci]"
+    - git commit -m "Update image [skip ci]"
     - git push https://oauth2:$CI_JOB_TOKEN@gitlab.com/$CI_PROJECT_NAMESPACE/gitops-manifests.git main
   only:
     - main
