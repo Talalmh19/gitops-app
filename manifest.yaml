@@ -15,6 +15,10 @@ spec:
       labels:
         app: gitlab-app
     spec:
+      # --- NEW: Added Secret to pull image from private GitLab registry ---
+      imagePullSecrets:
+      - name: gitlab-registry
+      # ------------------------------------------------------------------
       containers:
       - name: gitlab-app
         image: nginx:latest
