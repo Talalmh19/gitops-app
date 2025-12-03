@@ -2,22 +2,11 @@ stages:
   - build
   - deploy
 
-# Existing job for friend's Flask app (keep it)
-build:
-  stage: build
-  image: docker:latest
-  services:
-    - docker:dind
-  script:
-    - docker build -t flask-app:latest .
-    - echo "Flask app built successfully"
-  only:
-    changes:
-      - app.py
-      - Dockerfile
-      - requirements.txt
+# Friend 3's jobs (already there - DON'T TOUCH)
+# ... their existing jobs ...
 
-# YOUR JOBS - Task Manager Backend
+# YOUR JOBS - ADD THESE:
+
 build-task-manager-backend:
   stage: build
   image: docker:latest
@@ -25,7 +14,7 @@ build-task-manager-backend:
     - docker:dind
   script:
     - cd apps/task-manager/backend
-    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
     - docker build -t xilv2/aks-backend:$CI_COMMIT_SHORT_SHA .
     - docker build -t xilv2/aks-backend:latest .
     - docker push xilv2/aks-backend:$CI_COMMIT_SHORT_SHA
@@ -34,7 +23,6 @@ build-task-manager-backend:
     changes:
       - apps/task-manager/backend/**/*
 
-# YOUR JOBS - Task Manager Frontend
 build-task-manager-frontend:
   stage: build
   image: docker:latest
@@ -42,7 +30,7 @@ build-task-manager-frontend:
     - docker:dind
   script:
     - cd apps/task-manager/frontend
-    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
     - docker build -t xilv2/aks-frontend:$CI_COMMIT_SHORT_SHA .
     - docker build -t xilv2/aks-frontend:latest .
     - docker push xilv2/aks-frontend:$CI_COMMIT_SHORT_SHA
@@ -50,3 +38,12 @@ build-task-manager-frontend:
   only:
     changes:
       - apps/task-manager/frontend/**/*
+
+deploy-task-manager:
+  stage: deploy
+  image: bitnami/kubectl:latest
+  script:
+    - kubectl apply -f apps/task-manager/k8s/
+  only:
+    changes:
+      - apps/task-manager/**/*
