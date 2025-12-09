@@ -109,7 +109,7 @@ gitops-app/
 
 ### Documentation
 Click the image below to read the full PDF:
-[![PDF Preview](docs/cover.png)](docs/gitops-app.pdf)
+[![PDF Preview](docs/cover.png)](docs/gitops-project.pdf)
 
 ## Configuration
 
